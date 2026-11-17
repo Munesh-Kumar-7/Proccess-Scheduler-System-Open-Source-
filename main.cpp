@@ -43,6 +43,7 @@ string getProcessName(tuple<string, int, int> &a)
 }
 
 int getArrivalTime(tuple<string, int, int> &a)
+
 {
     return get<1>(a);
 }
@@ -51,3 +52,48 @@ int getServiceTime(tuple<string, int, int> &a)
 {
     return get<2>(a);
 }
+int getPriorityLevel(tuple<string, int, int> &a)
+{
+    return get<2>(a);
+}
+
+double calculate_response_ratio(int wait_time, int service_time)
+{
+    return (wait_time + service_time)*1.0 / service_time;
+}
+
+void fillInWaitTime(){
+    for (int i = 0; i < process_count; i++)
+    {
+        int arrivalTime = getArrivalTime(processes[i]);
+        for (int k = arrivalTime; k < finishTime[i]; k++)
+        {
+            if (timeline[k][i] != '*')
+                timeline[k][i] = '.';
+        }
+    }
+}
+
+void firstComeFirstServe()
+{
+    int time = getArrivalTime(processes[0]);
+    for (int i = 0; i < process_count; i++)
+    {
+        int processIndex = i;
+        int arrivalTime = getArrivalTime(processes[i]);
+        int serviceTime = getServiceTime(processes[i]);
+
+        finishTime[processIndex] = (time + serviceTime);
+        turnAroundTime[processIndex] = (finishTime[processIndex] - arrivalTime);
+        normTurn[processIndex] = (turnAroundTime[processIndex] * 1.0 / serviceTime);
+
+        for (int j = time; j < finishTime[processIndex]; j++)
+            timeline[j][processIndex] = '*';
+        for (int j = arrivalTime; j < time; j++)
+            timeline[j][processIndex] = '.';
+        time += serviceTime;
+    }
+}
+
+
+
